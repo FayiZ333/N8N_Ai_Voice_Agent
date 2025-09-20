@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\":[\n        {\n            \"toolCallId\":\"{{ $('Webhook calendar_slots_workflow1').item.json.body.message.toolCallList[0].id }}\",\n            \"result\": \"{{ $json.status }}\"\n        }\n    ]\n}\n",
+        "options": {}
+      },
+      "id": "12e7b4e7-c81d-43f2-8a13-a66b89a41aad",
+      "name": "Response - Slots Available2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        464,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calendar_set_appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        32
+      ],
+      "id": "abcdd17f-7775-41e0-bad7-0efc569af605",
+      "name": "Webhook calendar_slots_workflow1",
+      "webhookId": "78fb4c52-5aa6-4d94-880c-103e02b0df9d"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "beckmc61@gmail.com",
+          "mode": "list",
+          "cachedResultName": "beckmc61@gmail.com"
+        },
+        "start": "={{ $json.body.message.toolCalls[0].function.arguments.date }}",
+        "end": "={{ $json.body.message.toolCalls[0].function.arguments.date.toDateTime().plus(60, 'minutes') }}",
+        "additionalFields": {
+          "description": "=Name:  {{ $json.body.message.toolCalls[0].function.arguments.name }}\nDoB: {{ $json.body.message.toolCalls[0].function.arguments.dob }}\nPhone Number: {{ $json.body.message.toolCalls[0].function.arguments.Phone }}\nNote: {{ $json.body.message.toolCalls[0].function.arguments.note }}",
+          "summary": "={{ $json.body.message.toolCalls[0].function.arguments.name }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        32
+      ],
+      "id": "4a602849-8665-4733-b731-7ff71e268dd4",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "LbzEAdINdARUsOe3",
+          "name": "Google Calendar account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook calendar_slots_workflow1": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Response - Slots Available2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4abe292dde3b8deba350548e5546febb5e9f65db6cf3af1d200fb2885172aac"
+  }
+}
