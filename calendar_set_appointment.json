@@ -36,9 +36,9 @@
       "parameters": {
         "calendar": {
           "__rl": true,
-          "value": "beckmc61@gmail.com",
+          "value": "test@gmail.com",
           "mode": "list",
-          "cachedResultName": "beckmc61@gmail.com"
+          "cachedResultName": "test@gmail.com"
         },
         "start": "={{ $json.body.message.toolCalls[0].function.arguments.date }}",
         "end": "={{ $json.body.message.toolCalls[0].function.arguments.date.toDateTime().plus(60, 'minutes') }}",
