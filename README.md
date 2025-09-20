@@ -1,6 +1,9 @@
 # N8N_Ai_Voice_Agent
 Ai voice agent using N8N  and VAPI
 
+N8N Services: https://n8n.io/
+Create both workflows in N8N, then activate them.
+
 VAPI Service: https://vapi.ai/
 
 **First Message**
