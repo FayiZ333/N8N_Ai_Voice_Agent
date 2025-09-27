@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "appointment_reschedule",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "3b09875a-120c-4c4a-9e18-9deaf4c2e55b",
+      "name": "Webhook appointment_reschedule",
+      "webhookId": "78fb4c52-5aa6-4d94-880c-103e02b0df9d"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "beckmc61@gmail.com",
+          "mode": "list",
+          "cachedResultName": "beckmc61@gmail.com"
+        },
+        "eventId": "={{ $json.body.message.toolCalls[0].function.arguments.slotId }}",
+        "updateFields": {
+          "end": "={{ $json.body.message.toolCalls[0].function.arguments.Date.toDateTime().plus(1, \"hr\") }}",
+          "start": "={{ $json.body.message.toolCalls[0].function.arguments.Date }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        0
+      ],
+      "id": "9b31d844-89f1-482b-91fb-6fb60cfe51e5",
+      "name": "Update an event",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "QwlUgCsjoG0OIHz8",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook appointment_rescedule').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": \"{{ $json.status }}\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "id": "cf9e6144-d479-4f3e-b30f-3fb61ceb51fd",
+      "name": "Response - Slots Available",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        352,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook appointment_rescedule": {
+      "main": [
+        [
+          {
+            "node": "Update an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update an event": {
+      "main": [
+        [
+          {
+            "node": "Response - Slots Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a4abe292dde3b8deba350548e5546febb5e9f65db6cf3af1d200fb2885172aac"
+  }
+}
