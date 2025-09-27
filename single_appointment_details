@@ -1,0 +1,257 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "appointment_details",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        176,
+        0
+      ],
+      "id": "5316e566-68ae-4708-83b8-0e1e90b11e12",
+      "name": "Webhook appointment_details",
+      "webhookId": "78fb4c52-5aa6-4d94-880c-103e02b0df9d"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "beckmc61@gmail.com",
+          "mode": "list",
+          "cachedResultName": "beckmc61@gmail.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $json.body.message.toolCalls[0].function.arguments.date }}",
+        "timeMax": "={{ $json.body.message.toolCalls[0].function.arguments.date.toDateTime().plus(1, \"hr\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        0
+      ],
+      "id": "ebb38dba-79d1-4886-b3cf-39cba8679ea0",
+      "name": "Get many events",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "QwlUgCsjoG0OIHz8",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook appointment_details').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": {\n                \"message\": \"Confirmed\",\n                \"slotId\": \"{{ $('Get many events').item.json.id }}\",\n                \"data\": \"{{ $json.name }},{{ $json.dob }},{{ $json.phone }},{{ $json.note }}\"\n            }\n        }\n    ]\n}",
+        "options": {}
+      },
+      "id": "aec2fad9-17c3-47bc-8790-0d2dc3b3fb67",
+      "name": "Response - Slots Available",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4ff2b11d-ee2c-4c86-9f6f-5690988ee102",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "={{ $('Webhook appointment_details').item.json.body.message.toolCalls[0].function.arguments.name }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "4690ad8d-40a5-4510-8ef8-671764fc29a9",
+              "leftValue": "={{ $json.dob }}",
+              "rightValue": "={{ $('Webhook appointment_details').item.json.body.message.toolCalls[0].function.arguments.DoB }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "deccd624-cde5-46fa-9254-3a8a052666e1",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "={{ $('Webhook appointment_details').item.json.body.message.toolCalls[0].function.arguments.Phone }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        -16
+      ],
+      "id": "4023ec11-b953-4cf0-ac13-ea2640e18f7b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\": [\n        {\n            \"toolCallId\": \"{{ $('Webhook appointment_details').item.json.body.message.toolCalls[0].id }}\",\n            \"result\": {\n                \"message\": \"No appointment in given details\",\n                \"data\": \"{{ $json.name }},{{ $json.dob }},{{ $json.phone }},{{ $json.note }}\"\n            }\n        }\n    ]\n}",
+        "options": {}
+      },
+      "id": "ec440802-ea4d-42da-a1c9-020c237446e5",
+      "name": "Response - Slots Available1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputText = $input.first().json.description; // replace 'fieldName' with your actual field name\n\n// Extract each piece of data, excluding commas and newlines\nconst nameMatch = inputText.match(/Name:\\s*([^,\\n\\r]+)/);\nconst dobMatch = inputText.match(/DoB:\\s*([^,\\n\\r]+)/);\nconst phoneMatch = inputText.match(/Phone Number:\\s*([^,\\n\\r]+)/);\nconst noteMatch = inputText.match(/Note:\\s*([^,\\n\\r]*)$/);\n\nreturn {\n  name: nameMatch ? nameMatch[1].trim() : '',\n  dob: dobMatch ? dobMatch[1].trim() : '',\n  phone: phoneMatch ? phoneMatch[1].trim() : '',\n  note: noteMatch ? noteMatch[1].trim() : ''\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -16
+      ],
+      "id": "3a4379a5-c26d-4427-8456-273550361485",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1c9926eb-ebbd-468b-839b-f75e4d06aed2",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "32d0a49a-cc58-4617-bda5-b9b7e5cb43a2",
+      "name": "If1"
+    }
+  ],
+  "connections": {
+    "Webhook appointment_details": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Response - Slots Available",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response - Slots Available1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response - Slots Available1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a4abe292dde3b8deba350548e5546febb5e9f65db6cf3af1d200fb2885172aac"
+  }
+}
